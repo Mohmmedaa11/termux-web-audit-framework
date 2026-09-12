@@ -17,7 +17,15 @@ MODULES = {
     "auth": [("Login", "Review throttling, account lockout behavior, MFA, recovery, and session rotation."), ("Session", "Verify logout, idle timeout, absolute timeout, fixation resistance, and cookie scope."), ("Recovery", "Verify reset links are short-lived, single-use, non-enumerating, and bound to the right account.")],
     "graphql": [("GraphQL controls", "Review introspection policy, depth/complexity limits, batching, resolver authorization, and field exposure.")],
     "upload": [("Upload isolation", "Verify allowlists, content validation, random names, size limits, malware workflow, and storage outside executable web roots.")],
-    "business": [("Workflow integrity", "Test state transitions, replay, duplicate actions, price/quantity boundaries, and race conditions with test data only.")],
+    "business": [
+        ("Workflow integrity", "Map every state transition and verify the server rejects skipped, reversed, or repeated steps."),
+        ("Object ownership", "Use two test accounts and confirm every read, update, download, and delete checks ownership server-side."),
+        ("Replay and idempotency", "Repeat a harmless request with a test record and verify payments, invitations, coupons, and actions are not duplicated."),
+        ("Limits and pricing", "Check quantity, currency, discount, inventory, pagination, and time boundaries with non-production data."),
+        ("Concurrency", "With written approval, run a small controlled parallel test against disposable records and verify atomic state changes."),
+        ("Approval and roles", "Verify approval, refund, export, moderation, and administrative actions require the intended role and separation of duties."),
+        ("Abuse resistance", "Review rate limits, quotas, invitation limits, trial conversion, and resource exhaustion controls without stress testing production."),
+    ],
 }
 
 def main() -> int:

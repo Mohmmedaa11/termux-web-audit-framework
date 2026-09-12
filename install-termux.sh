@@ -22,4 +22,5 @@ python -m unittest discover -s tests -v
 echo
 echo "اكتمل التثبيت. مثال آمن:"
 echo "  python audit.py scan --target https://staging.example.com --scope config/scope.txt --out reports --dry-run"
+echo "  python audit.py interactive --scope config/scope.txt --out reports"
 echo "راجع README.md قبل تشغيل أي أداة خارجية."

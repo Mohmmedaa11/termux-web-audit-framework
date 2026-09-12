@@ -230,12 +230,28 @@ def main() -> int:
     scan.add_argument("--all", action="store_true")
     scan.add_argument("--dry-run", action="store_true", help="show fixed commands without executing them")
     scan.add_argument("--timeout", type=int, default=90)
+    interactive = sub.add_parser("interactive", help="prompt for one authorized website URL")
+    interactive.add_argument("--scope", default="config/scope.txt")
+    interactive.add_argument("--out", default="reports")
+    interactive.add_argument("--tool", action="append", choices=sorted(TOOLS), default=[])
+    interactive.add_argument("--all", action="store_true")
+    interactive.add_argument("--dry-run", action="store_true")
+    interactive.add_argument("--timeout", type=int, default=90)
     args = parser.parse_args()
     if args.list_tools:
         print("\n".join(sorted(TOOLS))); return 0
-    if args.action != "scan": parser.print_help(); return 1
-    raw_targets = list(args.target or [])
-    if args.targets_file: raw_targets.extend(load_targets(args.targets_file))
+    if args.action not in {"scan", "interactive"}: parser.print_help(); return 1
+    if args.action == "interactive":
+        if not sys.stdin.isatty(): print("الوضع التفاعلي يحتاج Terminal حقيقي.", file=sys.stderr); return 2
+        try:
+            entered = input("أدخل رابط الموقع المصرح به (أو اكتب exit): ").strip()
+        except EOFError:
+            return 2
+        if entered.lower() in {"", "exit", "quit"}: return 0
+        raw_targets = [entered]
+    else:
+        raw_targets = list(args.target or [])
+        if args.targets_file: raw_targets.extend(load_targets(args.targets_file))
     if not raw_targets: print("يجب تحديد --target أو --targets-file", file=sys.stderr); return 2
     scope = load_scope(args.scope)
     targets = []

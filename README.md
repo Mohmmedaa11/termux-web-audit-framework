@@ -59,6 +59,30 @@ cp config/scope.txt.example config/scope.txt
 nano config/scope.txt
 ```
 
+### التشغيل التفاعلي: أدخل رابط الموقع أثناء التشغيل
+
+بعد إعداد قائمة السماح، شغّل:
+
+```bash
+python audit.py interactive \
+  --scope config/scope.txt \
+  --out reports
+```
+
+سيظهر prompt لإدخال الرابط. اكتب مثلًا:
+
+```text
+https://staging.example.com
+```
+
+يتحقق البرنامج أولًا من أن hostname موجود في `config/scope.txt`، ثم يبدأ الفحص. إذا لم يكن مصرحًا به فسيُرفض قبل تنفيذ أي أداة. للخروج اكتب `exit`.
+
+لتشغيل الأدوات المثبتة ضمن الوضع التفاعلي:
+
+```bash
+python audit.py interactive --scope config/scope.txt --out reports --all
+```
+
 فحص هدف واحد:
 
 ```bash
