@@ -56,6 +56,22 @@ chmod +x install-termux.sh
 
 ثبّت الأدوات الإضافية من مصادرها الرسمية فقط، وراجع تراخيصها وإعداداتها قبل استخدامها.
 
+المثبت السابق يثبت الآن `install-tools-termux.sh` أيضًا. هذا السكربت يحاول تثبيت أدوات Go مثل ProjectDiscovery وAmass، وأدوات Python/Ruby، وNikto وTestssl وSearchSploit من مستودعاتها الرسمية. قد تفشل بعض الأدوات بسبب إصدار Android أو معمارية الجهاز؛ سيعرض السكربت تقرير `نجح/فشل` ولا يعتبر الأداة مثبتة إلا إذا ظهرت فعليًا في PATH.
+
+لتشغيل مثبت الأدوات وحده:
+
+```bash
+chmod +x install-tools-termux.sh
+./install-tools-termux.sh
+python audit.py --tool-status
+```
+
+بعد تثبيت أدوات Go افتح جلسة Termux جديدة أو نفّذ:
+
+```bash
+export PATH="$HOME/go/bin:$PATH"
+```
+
 تثبيت كل أداة خارجية ليس مطلوبًا ولا يُنصح به تلقائيًا؛ استخدم فقط الأدوات التي تحتاجها وتأكد من توافقها مع Termux.
 
 ## الإعداد والفحص

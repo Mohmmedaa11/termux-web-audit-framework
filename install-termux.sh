@@ -11,6 +11,8 @@ pkg upgrade -y
 pkg install -y python git curl dnsutils openssl nmap
 
 chmod +x audit.py manual_plan.py
+chmod +x install-tools-termux.sh
+./install-tools-termux.sh
 
 python audit.py --list-tools
 python audit.py --tool-status
