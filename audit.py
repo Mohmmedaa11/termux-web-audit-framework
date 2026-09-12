@@ -32,6 +32,7 @@ TOOL_PROFILES = {
     "sslscan": lambda t: ["sslscan", "--no-colour", "--timeout=5", f"{urlparse(t).hostname}:443"],
     "testssl": lambda t: ["testssl", "--quiet", "--warnings", "batch", t],
     "searchsploit": lambda t: ["searchsploit", "--json", urlparse(t).hostname or ""],
+    "zap-baseline": lambda t: ["zap-baseline.py", "-t", t, "-m", "1", "-I", "-T", "60"],
 }
 TOOLS = set(TOOL_PROFILES)
 
@@ -106,6 +107,16 @@ def check_headers(target: str) -> list[Finding]:
             findings.append(Finding(fid, title, sev, "Medium", evidence, fix))
     if lowered.get("server"):
         findings.append(Finding("CORE-INFO-001", "كشف ترويسة Server", "Info", "High", lowered["server"], "قلّل تفاصيل الإصدار المكشوفة إن لم تكن لازمة."))
+    if lowered.get("access-control-allow-origin") == "*":
+        findings.append(Finding("CORE-CORS-001", "CORS يسمح لجميع المصادر", "Medium", "High", "Access-Control-Allow-Origin: *", "قيّد المصادر المسموح بها ولا تستخدم * مع بيانات حساسة أو credentials."))
+    set_cookie = lowered.get("set-cookie", "").lower()
+    if set_cookie:
+        if "secure" not in set_cookie and target.startswith("https://"):
+            findings.append(Finding("CORE-COOKIE-001", "Cookie دون Secure", "Medium", "Medium", "Set-Cookie لا يحتوي Secure", "أضف Secure إلى الكوكيز التي تُرسل عبر HTTPS."))
+        if "httponly" not in set_cookie:
+            findings.append(Finding("CORE-COOKIE-002", "Cookie دون HttpOnly", "Low", "Medium", "Set-Cookie لا يحتوي HttpOnly", "أضف HttpOnly إلى كوكيز الجلسة غير المطلوبة من JavaScript."))
+        if "samesite" not in set_cookie:
+            findings.append(Finding("CORE-COOKIE-003", "Cookie دون SameSite", "Low", "Medium", "Set-Cookie لا يحتوي SameSite", "حدد SameSite=Lax أو Strict حسب تدفق التطبيق."))
     if status and status >= 500:
         findings.append(Finding("CORE-HTTP-001", "استجابة خادم 5xx", "Medium", "Medium", f"HTTP {status}", "راجع السجلات ومعالجة الأخطاء وتحقق من عدم تسريب تفاصيل."))
     return findings

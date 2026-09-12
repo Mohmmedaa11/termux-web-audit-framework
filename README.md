@@ -20,14 +20,17 @@
 python audit.py --list-tools
 ```
 
-تشمل: `amass`, `assetfinder`, `curl`, `dig`, `dnsx`, `host`, `httpx`, `nikto`, `nmap`, `nuclei`, `openssl`, `searchsploit`, `sslscan`, `subfinder`, `testssl`, `wafw00f`, و`whatweb`.
+تشمل: `amass`, `assetfinder`, `curl`, `dig`, `dnsx`, `host`, `httpx`, `nikto`, `nmap`, `nuclei`, `openssl`, `searchsploit`, `sslscan`, `subfinder`, `testssl`, `wafw00f`, `whatweb`، و`zap-baseline` عند تثبيت OWASP ZAP.
 
 الأدوات غير المثبتة يتم تخطيها مع تسجيل ملاحظة في التقرير. لا يمرر الإطار خيارات عشوائية؛ لكل أداة ملف تشغيل ثابت.
 
 ## التثبيت على Termux
 
+ثبّت Termux من [F-Droid](https://f-droid.org/packages/com.termux/) أو من [إصدارات GitHub الرسمية](https://github.com/termux/termux-app/releases)، وليس من نسخة Play Store القديمة. راجع [توثيق إدارة الحزم الرسمي](https://github.com/termux/termux-packages/wiki/Package-Management) عند حدوث مشكلة في المستودعات.
+
 ```bash
 pkg update
+pkg upgrade -y
 pkg install -y python git curl dnsutils openssl nmap
 
 git clone https://github.com/Mohmmedaa11/termux-web-audit-framework.git
@@ -35,7 +38,16 @@ cd termux-web-audit-framework
 chmod +x audit.py
 ```
 
+أو نفّذ المثبت الموجود داخل المشروع:
+
+```bash
+chmod +x install-termux.sh
+./install-termux.sh
+```
+
 ثبّت الأدوات الإضافية من مصادرها الرسمية فقط، وراجع تراخيصها وإعداداتها قبل استخدامها.
+
+تثبيت كل أداة خارجية ليس مطلوبًا ولا يُنصح به تلقائيًا؛ استخدم فقط الأدوات التي تحتاجها وتأكد من توافقها مع Termux.
 
 ## الإعداد والفحص
 
@@ -87,6 +99,10 @@ python audit.py scan --target https://staging.example.com \
 - `reports/report.md`: تقرير قابل للقراءة.
 - `reports/report.csv`: جدول مناسب للفرز والتحليل.
 - `reports/raw/<hostname>/`: مخرجات الأدوات الخام لكل هدف.
+
+## التغطية والقيود
+
+راجع [مصفوفة التغطية](docs/coverage.md). الإطار لا يستطيع ضمان اكتشاف جميع الثغرات؛ فهو لا يختبر منطق الأعمال، التفويض، كل حالات المصادقة، أو الثغرات التي تحتاج استغلالًا. أي نتيجة آلية تحتاج تحققًا يدويًا ضمن التفويض.
 
 ## تقييم الخطورة
 
