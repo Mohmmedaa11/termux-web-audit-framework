@@ -216,6 +216,7 @@ def confirm_authorization() -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Allowlist-based low-impact web auditor")
     parser.add_argument("--list-tools", action="store_true")
+    parser.add_argument("--tool-status", action="store_true", help="show installed/missing status for every profile")
     sub = parser.add_subparsers(dest="action")
     scan = sub.add_parser("scan", help="run an authorized audit")
     scan.add_argument("--target", action="append", help="target URL; repeat for multiple targets")
@@ -234,6 +235,12 @@ def main() -> int:
     args = parser.parse_args()
     if args.list_tools:
         print("\n".join(sorted(TOOLS))); return 0
+    if args.tool_status:
+        for name in sorted(TOOLS):
+            executable = TOOL_PROFILES[name]("https://example.invalid")[0]
+            status = "installed" if shutil.which(executable) else "missing"
+            print(f"{name}: {status} ({executable})")
+        return 0
     if args.action not in {"scan", "interactive"}: parser.print_help(); return 1
     if args.action == "interactive":
         if not sys.stdin.isatty(): print("الوضع التفاعلي يحتاج Terminal حقيقي.", file=sys.stderr); return 2
@@ -243,6 +250,12 @@ def main() -> int:
             return 2
         if entered.lower() in {"", "exit", "quit"}: return 0
         raw_targets = [entered]
+        if not args.all and not args.tool:
+            try:
+                choice = input("تشغيل كل الأدوات المثبتة تلقائيًا؟ [y/N]: ").strip().lower()
+            except EOFError:
+                choice = "n"
+            args.all = choice in {"y", "yes"}
     else:
         raw_targets = list(args.target or [])
         if args.targets_file: raw_targets.extend(load_targets(args.targets_file))

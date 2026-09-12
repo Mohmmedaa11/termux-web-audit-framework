@@ -13,6 +13,7 @@ pkg install -y python git curl dnsutils openssl nmap
 chmod +x audit.py manual_plan.py
 
 python audit.py --list-tools
+python audit.py --tool-status
 python -m unittest discover -s tests -v
 
 echo

@@ -21,6 +21,14 @@
 python audit.py --list-tools
 ```
 
+هذه أسماء ملفات تشغيل، وليست ضمانًا أن كل برنامج مثبت. اعرض الحالة الحقيقية للأدوات على جهازك:
+
+```bash
+python audit.py --tool-status
+```
+
+ستظهر كل أداة كـ `installed` أو `missing`. الإطار لا يدّعي تشغيل أداة غير موجودة؛ الأدوات الاختيارية يجب تثبيتها من مصادرها الرسمية وبما يتوافق مع Termux.
+
 تشمل: `amass`, `assetfinder`, `curl`, `dig`, `dnsx`, `gau`, `gowitness`, `hakrawler`, `host`, `httpx`, `katana`, `nikto`, `nmap`, `nuclei`, `openssl`, `searchsploit`, `sslscan`, `subfinder`, `testssl`, `wafw00f`, `waybackurls`, `whatweb`، و`zap-baseline` عند تثبيت OWASP ZAP.
 
 الأدوات غير المثبتة يتم تخطيها مع تسجيل ملاحظة في التقرير. لا يمرر الإطار خيارات عشوائية؛ لكل أداة ملف تشغيل ثابت.
@@ -54,7 +62,7 @@ chmod +x install-termux.sh
 
 ### التشغيل التفاعلي: أدخل رابط الموقع أثناء التشغيل
 
-شغّل مباشرة:
+شغّل مباشرة؛ وبعد إدخال الرابط سيُسأل المشغل إن كان يريد تشغيل كل الأدوات المثبتة:
 
 ```bash
 python audit.py interactive --out reports
@@ -68,7 +76,7 @@ https://staging.example.com
 
 سيطلب البرنامج تأكيد التصريح بكتابة `I_HAVE_PERMISSION` مرة واحدة داخل الجلسة، ولا يحفظ أي نطاقات على القرص. للخروج اكتب `exit`.
 
-لتشغيل الأدوات المثبتة ضمن الوضع التفاعلي:
+لتشغيل الأدوات المثبتة دون السؤال:
 
 ```bash
 python audit.py interactive --out reports --all
