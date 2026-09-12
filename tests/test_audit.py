@@ -1,9 +1,8 @@
-import tempfile
 import unittest
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).parents[1]))
-from audit import TOOLS, in_scope, normalize_target, render_md, severity_for_output
+from audit import TOOLS, Finding, in_scope, normalize_target, render_md, severity_for_output, summarize
 
 class AuditTests(unittest.TestCase):
     def test_scope_exact_and_subdomain(self):
@@ -24,9 +23,13 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(severity_for_output("missing security header"), "Medium")
         self.assertEqual(severity_for_output(""), "Info")
 
-    def test_markdown_has_summary(self):
-        text = render_md({"target":"https://example.com/", "started_at":"now", "summary":{"max_severity":"Low", "tools":[]}, "findings":[]})
+    def test_summary_score_and_markdown(self):
+        findings = [Finding("X", "sample", "High", "High", "evidence", "fix")]
+        summary = summarize(findings, ["httpx"])
+        self.assertEqual(summary["risk_score"], 8)
+        text = render_md({"targets":["https://example.com/"], "started_at":"now", "summary":summary, "findings":[{**findings[0].__dict__, "target":"https://example.com/"}]})
         self.assertIn("تقرير فحص", text)
-        self.assertIn("Low", text)
+        self.assertIn("High", text)
+        self.assertIn("https://example.com/", text)
 
 if __name__ == "__main__": unittest.main()
