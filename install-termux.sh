@@ -9,6 +9,7 @@ fi
 pkg update -y
 pkg upgrade -y
 pkg install -y python git curl dnsutils openssl nmap
+python -m pip install --user --upgrade openai
 
 chmod +x audit.py
 if [[ ! -f config/scope.txt ]]; then
