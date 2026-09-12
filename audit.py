@@ -52,15 +52,6 @@ class Finding:
     source: str = "core"
 
 
-def load_scope(path: str) -> list[str]:
-    values = []
-    for line in Path(path).read_text(encoding="utf-8").splitlines():
-        line = line.strip().lower().rstrip(".")
-        if line and not line.startswith("#"):
-            values.append(line.split("://", 1)[-1].split("/", 1)[0].split(":", 1)[0])
-    return sorted(set(values))
-
-
 def load_targets(path: str) -> list[str]:
     values = []
     for line in Path(path).read_text(encoding="utf-8").splitlines():
@@ -68,11 +59,6 @@ def load_targets(path: str) -> list[str]:
         if line and not line.startswith("#"):
             values.append(line)
     return values
-
-
-def in_scope(target: str, scope: list[str]) -> bool:
-    host = (urlparse(target).hostname or "").lower().rstrip(".")
-    return bool(host) and any(host == item or host.endswith("." + item) for item in scope)
 
 
 def normalize_target(raw: str) -> str:
@@ -217,6 +203,16 @@ def write_csv(path: Path, findings: list[dict[str, Any]]) -> None:
         writer.writerows({key: item.get(key, "") for key in fields} for item in findings)
 
 
+def confirm_authorization() -> bool:
+    phrase = "I_HAVE_PERMISSION"
+    print("تنبيه: استخدم الفحص فقط على موقع تملك تصريحًا مكتوبًا لاختباره.")
+    print(f"اكتب {phrase} للتأكيد، أو اضغط Enter للإلغاء.")
+    try:
+        return input("> ").strip() == phrase
+    except EOFError:
+        return False
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Allowlist-based low-impact web auditor")
     parser.add_argument("--list-tools", action="store_true")
@@ -224,14 +220,12 @@ def main() -> int:
     scan = sub.add_parser("scan", help="run an authorized audit")
     scan.add_argument("--target", action="append", help="target URL; repeat for multiple targets")
     scan.add_argument("--targets-file", help="file containing one target URL per line")
-    scan.add_argument("--scope", default="config/scope.txt")
     scan.add_argument("--out", default="reports")
     scan.add_argument("--tool", action="append", choices=sorted(TOOLS), default=[])
     scan.add_argument("--all", action="store_true")
     scan.add_argument("--dry-run", action="store_true", help="show fixed commands without executing them")
     scan.add_argument("--timeout", type=int, default=90)
     interactive = sub.add_parser("interactive", help="prompt for one authorized website URL")
-    interactive.add_argument("--scope", default="config/scope.txt")
     interactive.add_argument("--out", default="reports")
     interactive.add_argument("--tool", action="append", choices=sorted(TOOLS), default=[])
     interactive.add_argument("--all", action="store_true")
@@ -253,11 +247,11 @@ def main() -> int:
         raw_targets = list(args.target or [])
         if args.targets_file: raw_targets.extend(load_targets(args.targets_file))
     if not raw_targets: print("يجب تحديد --target أو --targets-file", file=sys.stderr); return 2
-    scope = load_scope(args.scope)
+    if not confirm_authorization():
+        print("تم الإلغاء: لم يتم تأكيد التصريح.", file=sys.stderr); return 3
     targets = []
     for raw in raw_targets:
         target = normalize_target(raw)
-        if not in_scope(target, scope): print(f"رفض: خارج النطاق: {target}", file=sys.stderr); return 2
         if target not in targets: targets.append(target)
     out = Path(args.out); raw_dir = out / "raw"; raw_dir.mkdir(parents=True, exist_ok=True)
     selected = sorted(TOOLS) if args.all else args.tool
@@ -270,7 +264,7 @@ def main() -> int:
         for finding in findings:
             item = asdict(finding); item["target"] = target; all_findings.append(item)
     summary = summarize([Finding(**{k: item[k] for k in Finding.__dataclass_fields__}) for item in all_findings], selected)
-    report = {"targets": targets, "scope_file": args.scope, "started_at": started, "findings": all_findings, "summary": summary}
+    report = {"targets": targets, "authorization_confirmed": True, "started_at": started, "findings": all_findings, "summary": summary}
     (out / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out / "report.md").write_text(render_md(report), encoding="utf-8")
     write_csv(out / "report.csv", all_findings)

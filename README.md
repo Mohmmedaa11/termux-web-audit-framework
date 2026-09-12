@@ -6,7 +6,7 @@
 
 ## المزايا الحالية
 
-- قائمة سماح إلزامية للنطاقات.
+- تأكيد تصريح لمرة واحدة داخل جلسة التشغيل، دون حفظ قائمة نطاقات.
 - فحص هدف واحد أو عدة أهداف من ملف.
 - فحص ترويسات HTTP، DNS، TLS، وملفات `robots.txt` و`security.txt`.
 - تشغيل ملفات ثابتة لأدوات اكتشاف وفحص منخفضة التأثير.
@@ -52,21 +52,12 @@ chmod +x install-termux.sh
 
 ## الإعداد والفحص
 
-أنشئ قائمة النطاقات المصرح بها:
-
-```bash
-cp config/scope.txt.example config/scope.txt
-nano config/scope.txt
-```
-
 ### التشغيل التفاعلي: أدخل رابط الموقع أثناء التشغيل
 
-بعد إعداد قائمة السماح، شغّل:
+شغّل مباشرة:
 
 ```bash
-python audit.py interactive \
-  --scope config/scope.txt \
-  --out reports
+python audit.py interactive --out reports
 ```
 
 سيظهر prompt لإدخال الرابط. اكتب مثلًا:
@@ -75,19 +66,19 @@ python audit.py interactive \
 https://staging.example.com
 ```
 
-يتحقق البرنامج أولًا من أن hostname موجود في `config/scope.txt`، ثم يبدأ الفحص. إذا لم يكن مصرحًا به فسيُرفض قبل تنفيذ أي أداة. للخروج اكتب `exit`.
+سيطلب البرنامج تأكيد التصريح بكتابة `I_HAVE_PERMISSION` مرة واحدة داخل الجلسة، ولا يحفظ أي نطاقات على القرص. للخروج اكتب `exit`.
 
 لتشغيل الأدوات المثبتة ضمن الوضع التفاعلي:
 
 ```bash
-python audit.py interactive --scope config/scope.txt --out reports --all
+python audit.py interactive --out reports --all
 ```
 
 فحص هدف واحد:
 
 ```bash
 python audit.py scan --target https://staging.example.com \
-  --scope config/scope.txt --out reports
+  --out reports
 ```
 
 فحص عدة أهداف مذكورة في ملف:
@@ -98,24 +89,24 @@ https://app.example.com
 https://api.example.com
 EOF
 python audit.py scan --targets-file targets.txt \
-  --scope config/scope.txt --out reports
+  --out reports
 ```
 
 تشغيل أداة محددة أو جميع الأدوات المثبتة:
 
 ```bash
 python audit.py scan --target https://staging.example.com \
-  --scope config/scope.txt --out reports --tool httpx
+  --out reports --tool httpx
 
 python audit.py scan --target https://staging.example.com \
-  --scope config/scope.txt --out reports --all --timeout 90
+  --out reports --all --timeout 90
 ```
 
 راجع الأوامر قبل التنفيذ:
 
 ```bash
 python audit.py scan --target https://staging.example.com \
-  --scope config/scope.txt --out reports --all --dry-run
+  --out reports --all --dry-run
 ```
 
 ## خطة الفحص اليدوي
