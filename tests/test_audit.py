@@ -14,8 +14,8 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(normalize_target("example.com"), "https://example.com/")
         with self.assertRaises(ValueError): normalize_target("ftp://example.com")
 
-    def test_catalog_contains_core_profiles(self):
-        for name in ("nmap", "nuclei", "httpx", "dnsx", "subfinder", "openssl"):
+    def test_catalog_contains_core_and_discovery_profiles(self):
+        for name in ("nmap", "nuclei", "httpx", "dnsx", "subfinder", "openssl", "katana", "gau", "waybackurls"):
             self.assertIn(name, TOOLS)
 
     def test_severity_mapping(self):

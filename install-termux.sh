@@ -9,9 +9,8 @@ fi
 pkg update -y
 pkg upgrade -y
 pkg install -y python git curl dnsutils openssl nmap
-python -m pip install --user --upgrade openai
 
-chmod +x audit.py
+chmod +x audit.py manual_plan.py
 if [[ ! -f config/scope.txt ]]; then
   cp config/scope.txt.example config/scope.txt
   echo "تم إنشاء config/scope.txt؛ عدّله وأضف النطاقات المصرح بها فقط."

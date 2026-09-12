@@ -13,7 +13,6 @@
 - درجة مخاطر من 0 إلى 100، مع JSON وMarkdown وCSV.
 - `--dry-run` لمراجعة أوامر الأدوات قبل التنفيذ.
 - عزل المخرجات الخام لكل نطاق.
-- تحليل AI اختياري للتلخيص وترتيب الأولويات، دون تشغيل أدوات أو استغلال.
 - قائمة فحص يدوية شاملة في `manual-checklist.md`.
 
 ## الأدوات المدعومة
@@ -22,7 +21,7 @@
 python audit.py --list-tools
 ```
 
-تشمل: `amass`, `assetfinder`, `curl`, `dig`, `dnsx`, `host`, `httpx`, `nikto`, `nmap`, `nuclei`, `openssl`, `searchsploit`, `sslscan`, `subfinder`, `testssl`, `wafw00f`, `whatweb`، و`zap-baseline` عند تثبيت OWASP ZAP.
+تشمل: `amass`, `assetfinder`, `curl`, `dig`, `dnsx`, `gau`, `gowitness`, `hakrawler`, `host`, `httpx`, `katana`, `nikto`, `nmap`, `nuclei`, `openssl`, `searchsploit`, `sslscan`, `subfinder`, `testssl`, `wafw00f`, `waybackurls`, `whatweb`، و`zap-baseline` عند تثبيت OWASP ZAP.
 
 الأدوات غير المثبتة يتم تخطيها مع تسجيل ملاحظة في التقرير. لا يمرر الإطار خيارات عشوائية؛ لكل أداة ملف تشغيل ثابت.
 
@@ -50,16 +49,6 @@ chmod +x install-termux.sh
 ثبّت الأدوات الإضافية من مصادرها الرسمية فقط، وراجع تراخيصها وإعداداتها قبل استخدامها.
 
 تثبيت كل أداة خارجية ليس مطلوبًا ولا يُنصح به تلقائيًا؛ استخدم فقط الأدوات التي تحتاجها وتأكد من توافقها مع Termux.
-
-### تفعيل تحليل AI
-
-لا يعمل تحليل AI تلقائيًا ولا يرسل البيانات إلى أي خدمة إلا عند تشغيله صراحة. تحتاج إلى ضبط `OPENAI_API_KEY` و`OPENAI_API_BASE` في بيئتك، ويمكن استخدام نموذج أرخص مثل `gpt-5-mini` للمراجعة الأولية:
-
-```bash
-python ai_analyze.py reports/report.json --out reports/ai-review.json --model gpt-5-mini
-```
-
-المحلل يخرج ملخصًا، وضع المخاطر، ترتيب النتائج، أسئلة تحقق آمنة، وملاحظات false positives. لا يعتبر كلام النموذج إثباتًا، ولا يُسمح له باختلاق أدلة أو تقديم payloads استغلالية.
 
 ## الإعداد والفحص
 
@@ -105,6 +94,17 @@ python audit.py scan --target https://staging.example.com \
   --scope config/scope.txt --out reports --all --dry-run
 ```
 
+## خطة الفحص اليدوي
+
+لتوليد خطة حسب طبيعة التطبيق دون أي اتصال شبكي:
+
+```bash
+python manual_plan.py --type web --type api --type auth --type business \
+  --out manual-plan.md
+```
+
+ينتج الأمر `manual-plan.md` و`manual-plan.json`. كما توجد قائمة تفصيلية ثابتة في [manual-checklist.md](manual-checklist.md). الأدوات الآلية لا تستطيع إثبات سلامة منطق الأعمال أو التفويض أو الحالات المخفية؛ سجّل الدليل والنتيجة لكل بند يدويًا.
+
 ## المخرجات
 
 - `reports/report.json`: نتائج منظمة قابلة للمعالجة.
@@ -114,7 +114,7 @@ python audit.py scan --target https://staging.example.com \
 
 ## التغطية والقيود
 
-راجع [مصفوفة التغطية](docs/coverage.md). الإطار لا يستطيع ضمان اكتشاف جميع الثغرات؛ فهو لا يختبر منطق الأعمال، التفويض، كل حالات المصادقة، أو الثغرات التي تحتاج استغلالًا. أي نتيجة آلية تحتاج تحققًا يدويًا ضمن التفويض.
+راجع [مصفوفة التغطية](docs/coverage.md). الإطار لا يستطيع ضمان اكتشاف جميع الثغرات «المخفية»؛ فهو لا يختبر منطق الأعمال، التفويض، كل حالات المصادقة، أو الثغرات التي تحتاج استغلالًا. أي نتيجة آلية تحتاج تحققًا يدويًا ضمن التفويض.
 
 للتوثيق اليدوي استخدم [قائمة الفحص اليدوي](manual-checklist.md)، خصوصًا لاختبارات المصادقة، التفويض، IDOR، منطق الأعمال، CSRF، SSRF، رفع الملفات، وسلسلة التوريد.
 

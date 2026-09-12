@@ -33,6 +33,11 @@ TOOL_PROFILES = {
     "testssl": lambda t: ["testssl", "--quiet", "--warnings", "batch", t],
     "searchsploit": lambda t: ["searchsploit", "--json", urlparse(t).hostname or ""],
     "zap-baseline": lambda t: ["zap-baseline.py", "-t", t, "-m", "1", "-I", "-T", "60"],
+    "katana": lambda t: ["katana", "-u", t, "-depth", "2", "-jc", "-c", "1", "-p", "2", "-silent"],
+    "hakrawler": lambda t: ["hakrawler", "-url", t, "-depth", "2", "-plain"],
+    "gau": lambda t: ["gau", "--subs", "--threads", "1", urlparse(t).hostname or ""],
+    "waybackurls": lambda t: ["waybackurls", urlparse(t).hostname or ""],
+    "gowitness": lambda t: ["gowitness", "single", "--url", t, "--disable-logging"],
 }
 TOOLS = set(TOOL_PROFILES)
 
